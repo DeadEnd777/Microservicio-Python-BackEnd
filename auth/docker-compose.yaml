@@ -1,0 +1,46 @@
+version: '3.8'
+services:
+  #Django app
+  backend_auth:
+    container_name: ms_auth
+    build: .
+    volumes:
+      - .:/app
+    ports:
+      - 8000:8000
+    depends_on:
+      - db
+      - redis
+    # Comentario: Define un servicio para la aplicación Django. Utiliza una imagen construida localmente, monta el código fuente en el contenedor y expone el puerto 8000. Dependencias en la base de datos (db) y Redis.
+    
+  # Event Queue Kafka
+  queue_auth:
+    build: .
+    command: >
+      sh -c "python consumer.py"
+    depends_on:
+      - db
+  # Comentario: Sección comentada para un servicio Kafka (cola de eventos). No está activa en este archivo. El servicio depende de la base de datos (db).
+  
+  # Database (PostgreSQL)
+  db:
+    image: postgres
+    container_name: django_auth_api_postgresql
+    restart: always
+    environment:
+      POSTGRES_DB: ms_django
+      POSTGRES_USER: dead
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - 5432:5432
+    volumes:
+      - .dbdata:/var/lib/postgresql
+  # Comentario: Define un servicio de base de datos PostgreSQL. Utiliza la imagen oficial de PostgreSQL, configura el nombre de la base de datos y las credenciales de usuario. Expone el puerto 5432 y utiliza un volumen para persistir los datos.
+
+  # Redis cache
+  redis:
+    image: redis
+    container_name: django_auth_api_redis
+    ports:
+      - 6379:6379
+  # Comentario: Define un servicio para Redis (almacén de caché). Utiliza la imagen oficial de Redis y expone el puerto 6379.
