@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
-import slugify
+from slugify import slugify
 from core.producer import producer
 import json, uuid , re, os
 
